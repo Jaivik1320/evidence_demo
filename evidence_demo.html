@@ -1,0 +1,838 @@
+<title>Evidence Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #ffffff;
+  --bg2: #f8f9fa;
+  --bg3: #f0f2f5;
+  --bg4: #e8eaed;
+  --border: #e1e4e8;
+  --border2: #d0d7de;
+  --text: #1a1f2e;
+  --text2: #57606a;
+  --text3: #8c959f;
+  --accent: #2563eb;
+  --accent2: #1d4ed8;
+  --accent-light: #eff6ff;
+  --accent-border: #bfdbfe;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --amber: #d97706;
+  --amber-bg: #fffbeb;
+  --amber-border: #fde68a;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --red-border: #fecaca;
+  --purple: #7c3aed;
+  --purple-bg: #f5f3ff;
+  --purple-border: #ddd6fe;
+  --sidebar-w: 240px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --bg4: #30363d;
+    --border: #30363d;
+    --border2: #3d444d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --accent-light: #172554;
+    --accent-border: #1d4ed8;
+    --green-bg: #0a2e18;
+    --green-border: #166534;
+    --amber-bg: #1c1505;
+    --amber-border: #854d0e;
+    --red-bg: #1c0a0a;
+    --red-border: #7f1d1d;
+    --purple-bg: #1a0f2e;
+    --purple-border: #4c1d95;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1117; --bg2: #161b22; --bg3: #21262d; --bg4: #30363d;
+  --border: #30363d; --border2: #3d444d;
+  --text: #e6edf3; --text2: #8b949e; --text3: #6e7681;
+  --accent-light: #172554; --accent-border: #1d4ed8;
+  --green-bg: #0a2e18; --green-border: #166534;
+  --amber-bg: #1c1505; --amber-border: #854d0e;
+  --red-bg: #1c0a0a; --red-border: #7f1d1d;
+  --purple-bg: #1a0f2e; --purple-border: #4c1d95;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+
+/* App layout */
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-top { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.logo-mark { display: flex; align-items: center; gap: 8px; }
+.logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 800; }
+.logo-name { font-weight: 700; font-size: 15px; letter-spacing: -0.3px; }
+.logo-badge { font-size: 10px; background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); border-radius: 4px; padding: 1px 6px; font-weight: 600; margin-left: auto; }
+
+.file-tree { flex: 1; overflow-y: auto; padding: 8px 0; }
+.tree-section { padding: 4px 8px 2px; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.7px; font-weight: 600; }
+.tree-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; font-size: 12px; cursor: pointer;
+  color: var(--text2); border-left: 2px solid transparent;
+  transition: all 0.12s; white-space: nowrap; overflow: hidden;
+  border: none; background: none; width: 100%; text-align: left; font-family: inherit;
+}
+.tree-item:hover { background: var(--bg3); color: var(--text); }
+.tree-item.active { background: var(--accent-light); color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+.tree-item .icon { font-size: 13px; flex-shrink: 0; width: 16px; }
+.tree-item.indent { padding-left: 28px; }
+
+/* Main area */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Tab bar */
+.tabbar {
+  display: flex; align-items: center;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  overflow-x: auto; flex-shrink: 0;
+}
+.tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 16px; font-size: 12px; color: var(--text2);
+  border-right: 1px solid var(--border); cursor: pointer;
+  white-space: nowrap; flex-shrink: 0; transition: all 0.12s;
+  border: none; background: none; font-family: inherit;
+  border-bottom: 2px solid transparent;
+}
+.tab:hover { background: var(--bg3); color: var(--text); }
+.tab.active { background: var(--bg); color: var(--text); border-bottom-color: var(--accent); font-weight: 500; }
+.tab .tab-icon { font-size: 11px; }
+.tabbar-actions { margin-left: auto; padding: 0 12px; display: flex; gap: 8px; align-items: center; }
+
+/* Split: editor + preview */
+.split { display: flex; flex: 1; overflow: hidden; }
+.editor-pane { width: 46%; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+.preview-pane { flex: 1; overflow-y: auto; }
+
+.pane-header {
+  padding: 8px 14px; font-size: 11px; color: var(--text3); font-weight: 600;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* Code editor */
+.code-editor { flex: 1; overflow: auto; background: var(--bg); }
+.code-content { padding: 14px 0; min-height: 100%; }
+.code-line { display: flex; gap: 0; }
+.line-num { width: 40px; padding: 1px 10px 1px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3); text-align: right; flex-shrink: 0; user-select: none; }
+.line-code { font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 1px 14px 1px 8px; white-space: pre; color: var(--text2); line-height: 1.6; }
+.kw { color: var(--purple); font-weight: 500; }
+.str { color: var(--green); }
+.cmt { color: var(--text3); font-style: italic; }
+.fn { color: var(--accent); }
+.num { color: var(--amber); }
+.tag-c { color: #e36209; }
+.prop { color: var(--accent2); }
+.val { color: var(--green); }
+
+/* AI query bar */
+.ai-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--purple-bg);
+  border-top: 1px solid var(--purple-border); flex-shrink: 0;
+}
+.ai-bar-icon { font-size: 16px; flex-shrink: 0; }
+.ai-input {
+  flex: 1; background: var(--bg); border: 1px solid var(--purple-border);
+  border-radius: 6px; padding: 7px 12px; font-size: 12px;
+  color: var(--text); font-family: 'JetBrains Mono', monospace; outline: none;
+}
+.ai-input:focus { border-color: var(--purple); }
+.ai-input::placeholder { color: var(--text3); }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.15s; font-family: inherit;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg3); color: var(--text); }
+.btn-purple { background: var(--purple); color: #fff; }
+
+/* Preview / report */
+.report { padding: 28px 32px; max-width: 960px; }
+.report-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+.report-meta { font-size: 12px; color: var(--text3); margin-bottom: 24px; }
+.report-meta span { margin-right: 16px; }
+
+/* Big number row */
+.bignums { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+.bignum-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 18px;
+}
+.bignum-label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+.bignum-val { font-size: 26px; font-weight: 700; margin: 4px 0 2px; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+.bignum-trend { font-size: 11px; font-weight: 600; }
+.trend-up { color: var(--green); }
+.trend-dn { color: var(--red); }
+
+/* Chart cards */
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.chart-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+.chart-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.chart-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+.data-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle; }
+.data-table td:first-child { color: var(--text); font-weight: 500; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg3); }
+
+/* Chip / badge */
+.chip { display: inline-flex; align-items: center; font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+.chip-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.chip-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.chip-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.chip-blue { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-border); }
+
+/* AI suggestion panel */
+.ai-suggestion {
+  background: var(--purple-bg); border: 1px solid var(--purple-border);
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+}
+.ai-suggestion-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--purple); }
+.ai-suggestion-body { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.ai-gen-code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-top: 10px; color: var(--text); overflow-x: auto; }
+
+/* Pages */
+.page { display: none; height: 100%; }
+.page.active { display: flex; flex-direction: column; height: 100%; }
+
+/* Full page views */
+.full-page { padding: 24px 32px; overflow-y: auto; flex: 1; }
+
+/* Query page */
+.query-area { display: flex; flex-direction: column; height: 100%; }
+.query-editor-wrap { flex: 1; background: var(--bg); overflow: auto; padding: 14px; }
+.query-results { border-top: 1px solid var(--border); background: var(--bg2); }
+.results-header { padding: 8px 14px; font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.results-count { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); border-radius: 4px; padding: 1px 7px; font-weight: 600; font-size: 10px; }
+.run-btn-bar { padding: 8px 14px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+
+/* Sidebar mini chart */
+.sparkbar { display: flex; align-items: flex-end; gap: 1px; height: 24px; }
+.sparkbar-col { flex: 1; border-radius: 1px; min-height: 2px; }
+
+/* Settings page */
+.settings-section { margin-bottom: 28px; }
+.settings-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+.settings-label { font-size: 13px; }
+.settings-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.toggle { width: 36px; height: 20px; border-radius: 10px; background: var(--border2); position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; border: none; }
+.toggle.on { background: var(--accent); }
+.toggle::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: left 0.2s; }
+.toggle.on::after { left: 19px; }
+.source-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; }
+.source-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@media (max-width: 680px) {
+  .editor-pane { display: none; }
+  .bignums { grid-template-columns: 1fr 1fr; }
+  .chart-row { grid-template-columns: 1fr; }
+  .sidebar { width: 180px; }
+}
+</style>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo-mark">
+        <div class="logo-icon">E</div>
+        <div class="logo-name">Evidence</div>
+      </div>
+      <div class="logo-badge">Studio</div>
+    </div>
+    <div class="file-tree">
+      <div class="tree-section" style="margin-top:4px">Pages</div>
+      <button class="tree-item active" data-page="editor"><span class="icon">📄</span>revenue.md</button>
+      <button class="tree-item indent" data-page="customers"><span class="icon">📄</span>customers.md</button>
+      <button class="tree-item indent" data-page="growth"><span class="icon">📄</span>growth.md</button>
+      <div class="tree-section">Queries</div>
+      <button class="tree-item" data-page="query"><span class="icon">⚡</span>mrr_trend.sql</button>
+      <button class="tree-item indent" data-page="query"><span class="icon">⚡</span>churn_by_plan.sql</button>
+      <button class="tree-item indent" data-page="query"><span class="icon">⚡</span>top_customers.sql</button>
+      <div class="tree-section">Sources</div>
+      <button class="tree-item" data-page="settings"><span class="icon">🗄️</span>postgres (prod)</button>
+      <button class="tree-item indent" data-page="settings"><span class="icon">📊</span>bigquery</button>
+      <div class="tree-section">Components</div>
+      <button class="tree-item" data-page="editor"><span class="icon">🧩</span>LineChart</button>
+      <button class="tree-item indent" data-page="editor"><span class="icon">🧩</span>BarChart</button>
+      <button class="tree-item indent" data-page="editor"><span class="icon">🧩</span>DataTable</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Tab bar -->
+    <div class="tabbar">
+      <button class="tab active" data-page="editor"><span class="tab-icon">📄</span> revenue.md</button>
+      <button class="tab" data-page="customers"><span class="tab-icon">📄</span> customers.md</button>
+      <button class="tab" data-page="query"><span class="tab-icon">⚡</span> mrr_trend.sql</button>
+      <div class="tabbar-actions">
+        <button class="btn btn-ghost btn-sm" id="themeToggle">🌙</button>
+        <button class="btn btn-ghost btn-sm" data-page="settings">⚙ Settings</button>
+        <button class="btn btn-primary btn-sm">▶ Publish</button>
+      </div>
+    </div>
+
+    <!-- Editor + Preview page -->
+    <div class="page active" id="page-editor">
+      <div class="split">
+        <!-- Code editor -->
+        <div class="editor-pane">
+          <div class="pane-header">
+            <span>EDITOR — revenue.md</span>
+            <span style="color:var(--green);font-size:10px">● saved</span>
+          </div>
+          <div class="code-editor">
+            <div class="code-content" id="codeContent"></div>
+          </div>
+          <div class="ai-bar">
+            <span class="ai-bar-icon">✦</span>
+            <input class="ai-input" id="aiQueryInput" placeholder="Ask AI: add a chart showing MRR by plan…" />
+            <button class="btn btn-purple btn-sm" onclick="runAIQuery()">Generate</button>
+          </div>
+        </div>
+        <!-- Preview -->
+        <div class="preview-pane">
+          <div class="pane-header">
+            <span>PREVIEW — revenue</span>
+            <span style="font-size:10px;color:var(--accent)">Live</span>
+          </div>
+          <div class="report" id="reportPreview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers page -->
+    <div class="page" id="page-customers">
+      <div class="split">
+        <div class="editor-pane">
+          <div class="pane-header"><span>EDITOR — customers.md</span><span style="color:var(--green);font-size:10px">● saved</span></div>
+          <div class="code-editor">
+            <div class="code-content" id="custCode"></div>
+          </div>
+          <div class="ai-bar">
+            <span class="ai-bar-icon">✦</span>
+            <input class="ai-input" placeholder="Ask AI: segment customers by ARR tier…" />
+            <button class="btn btn-purple btn-sm">Generate</button>
+          </div>
+        </div>
+        <div class="preview-pane">
+          <div class="pane-header"><span>PREVIEW — customers</span><span style="font-size:10px;color:var(--accent)">Live</span></div>
+          <div class="report" id="custPreview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SQL Query page -->
+    <div class="page" id="page-query">
+      <div class="query-area">
+        <div class="run-btn-bar">
+          <button class="btn btn-primary btn-sm" onclick="runQuery()">▶ Run Query</button>
+          <button class="btn btn-ghost btn-sm">Format</button>
+          <span style="font-size:11px;color:var(--text3);margin-left:auto">postgres (prod) · mrr_trend.sql</span>
+        </div>
+        <div class="query-editor-wrap">
+          <div id="sqlCode"></div>
+        </div>
+        <div class="query-results" id="queryResults" style="display:none">
+          <div class="results-header">
+            <span>Results</span>
+            <span class="results-count" id="rowCount">0 rows</span>
+            <span style="margin-left:auto;font-size:11px;color:var(--text3)" id="queryTime"></span>
+          </div>
+          <div style="overflow-x:auto;padding:0 14px 14px">
+            <table class="data-table" id="resultsTable"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings page -->
+    <div class="page" id="page-settings">
+      <div class="full-page">
+        <div style="font-size:18px;font-weight:700;margin-bottom:20px">Project Settings</div>
+        <div class="settings-section">
+          <div class="settings-title">Data Sources</div>
+          <div class="source-card">
+            <div class="source-icon" style="background:#f0f6ff">🐘</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">PostgreSQL</div>
+              <div style="font-size:11px;color:var(--text3)">prod-db.internal:5432 · analytics_db</div>
+            </div>
+            <span class="chip chip-green">Connected</span>
+            <button class="btn btn-ghost btn-sm">Test</button>
+          </div>
+          <div class="source-card">
+            <div class="source-icon" style="background:#f0fff4">📊</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">BigQuery</div>
+              <div style="font-size:11px;color:var(--text3)">evidence-prod · analytics dataset</div>
+            </div>
+            <span class="chip chip-green">Connected</span>
+            <button class="btn btn-ghost btn-sm">Test</button>
+          </div>
+          <div class="source-card" style="border-style:dashed">
+            <div class="source-icon" style="background:var(--bg3)">➕</div>
+            <div style="flex:1;color:var(--text3);font-size:13px">Add data source</div>
+            <button class="btn btn-ghost btn-sm">Connect</button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Agent Settings</div>
+          <div class="settings-row">
+            <div><div class="settings-label">AI Query Generation</div><div class="settings-sub">Let the agent write SQL from natural language</div></div>
+            <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Auto-refresh on source change</div><div class="settings-sub">Re-run queries when schema changes detected</div></div>
+            <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Version control sync</div><div class="settings-sub">Push all changes to connected git repository</div></div>
+            <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-label">Scheduled builds</div><div class="settings-sub">Rebuild reports on cron schedule</div></div>
+            <button class="toggle" onclick="this.classList.toggle('on')"></button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Access Control</div>
+          <table class="data-table" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+            <thead><tr><th>User</th><th>Role</th><th>Access</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>adam@evidence.dev</td><td><span class="chip chip-blue">Admin</span></td><td>All pages</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+              <tr><td>sean@evidence.dev</td><td><span class="chip chip-blue">Admin</span></td><td>All pages</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+              <tr><td>analytics@company.com</td><td><span class="chip chip-green">Viewer</span></td><td>revenue, customers</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+              <tr><td>finance@company.com</td><td><span class="chip chip-green">Viewer</span></td><td>revenue</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Theme
+let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeToggle').textContent = dark ? '☀️' : '🌙';
+}
+applyTheme();
+document.getElementById('themeToggle').addEventListener('click', () => { dark = !dark; applyTheme(); });
+
+// Nav
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.tab, .tree-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll(`[data-page="${page}"]`).forEach(t => t.classList.add('active'));
+}
+document.querySelectorAll('[data-page]').forEach(el => {
+  el.addEventListener('click', () => goTo(el.dataset.page));
+});
+
+// Code syntax helpers
+function line(num, tokens) {
+  return `<div class="code-line"><span class="line-num">${num}</span><span class="line-code">${tokens}</span></div>`;
+}
+const kw = s => `<span class="kw">${s}</span>`;
+const str = s => `<span class="str">${s}</span>`;
+const cmt = s => `<span class="cmt">${s}</span>`;
+const fn = s => `<span class="fn">${s}</span>`;
+const num = s => `<span class="num">${s}</span>`;
+const tc = s => `<span class="tag-c">${s}</span>`;
+const prop = s => `<span class="prop">${s}</span>`;
+
+// Revenue page code
+const revCode = [
+  [cmt('---'), ''],
+  [prop('title') + ': Revenue Dashboard', ''],
+  [prop('queries') + ':', ''],
+  ['  - ' + fn('mrr_trend') + ' ' + kw('from') + ' ' + str("'mrr_trend.sql'"), ''],
+  ['  - ' + fn('plan_breakdown') + ' ' + kw('from') + ' ' + str("'plan_breakdown.sql'"), ''],
+  [cmt('---'), ''],
+  ['', ''],
+  [cmt('# Revenue Dashboard'), ''],
+  ['', ''],
+  [tc('&lt;BigNumber') + ' ' + prop('value') + '=' + str('{mrr_trend.current_mrr}'), ''],
+  ['  ' + prop('title') + '=' + str('"Monthly Recurring Revenue"'), ''],
+  ['  ' + prop('comparison') + '=' + str('{mrr_trend.mom_change}') + ' /&gt;', ''],
+  ['', ''],
+  [tc('&lt;LineChart') + ' ' + prop('data') + '=' + str('{mrr_trend}'), ''],
+  ['  ' + prop('x') + '=' + str('"month"') + ' ' + prop('y') + '=' + str('"mrr"'), ''],
+  ['  ' + prop('title') + '=' + str('"MRR Trend"') + ' /&gt;', ''],
+  ['', ''],
+  [tc('&lt;BarChart') + ' ' + prop('data') + '=' + str('{plan_breakdown}'), ''],
+  ['  ' + prop('x') + '=' + str('"plan"') + ' ' + prop('y') + '=' + str('"revenue"'), ''],
+  ['  ' + prop('title') + '=' + str('"Revenue by Plan"') + ' /&gt;', ''],
+  ['', ''],
+  [tc('&lt;DataTable') + ' ' + prop('data') + '=' + str('{mrr_trend}'), ''],
+  ['  ' + prop('rows') + '=' + str('{10}') + ' ' + prop('sort') + '=' + str('"month desc"') + ' /&gt;', ''],
+];
+document.getElementById('codeContent').innerHTML = revCode.map((r,i) => line(i+1, r[0])).join('');
+
+// Customers code
+const custCode = [
+  [cmt('---'), ''],
+  [prop('title') + ': Customer Analytics', ''],
+  [prop('queries') + ':', ''],
+  ['  - ' + fn('customers') + ' ' + kw('from') + ' ' + str("'top_customers.sql'"), ''],
+  [cmt('---'), ''],
+  ['', ''],
+  [cmt('# Customer Analytics'), ''],
+  ['', ''],
+  [tc('&lt;BigNumber') + ' ' + prop('value') + '=' + str('{customers.total_customers}'), ''],
+  ['  ' + prop('title') + '=' + str('"Total Customers"') + ' /&gt;', ''],
+  ['', ''],
+  [tc('&lt;DataTable') + ' ' + prop('data') + '=' + str('{customers}'), ''],
+  ['  ' + prop('rows') + '=' + str('{20}') + ' ' + prop('sort') + '=' + str('"arr desc"') + ' /&gt;', ''],
+];
+document.getElementById('custCode').innerHTML = custCode.map((r,i) => line(i+1, r[0])).join('');
+
+// SQL code
+const sqlLines = [
+  cmt('-- MRR trend by month for the last 12 months'),
+  kw('SELECT'),
+  '  ' + fn('DATE_TRUNC') + '(' + str("'month'") + ', created_at) ' + kw('AS') + ' month,',
+  '  ' + fn('SUM') + '(mrr_cents) / ' + num('100.0') + ' ' + kw('AS') + ' mrr,',
+  '  ' + fn('COUNT') + '(DISTINCT customer_id) ' + kw('AS') + ' customers,',
+  '  ' + fn('SUM') + '(mrr_cents) / ' + num('100.0') + ' - ' + fn('LAG') + '(' + fn('SUM') + '(mrr_cents) / ' + num('100.0') + ')',
+  '    ' + kw('OVER') + ' (' + kw('ORDER BY') + ' ' + fn('DATE_TRUNC') + '(' + str("'month'") + ', created_at)) ' + kw('AS') + ' mom_change',
+  kw('FROM') + ' subscriptions',
+  kw('WHERE') + ' status = ' + str("'active'"),
+  '  ' + kw('AND') + ' created_at >= ' + fn('NOW') + '() - ' + kw('INTERVAL') + ' ' + str("'12 months'"),
+  kw('GROUP BY') + ' ' + num('1'),
+  kw('ORDER BY') + ' ' + num('1') + ' ' + kw('DESC') + ';',
+];
+document.getElementById('sqlCode').innerHTML = sqlLines.map((l,i) =>
+  `<div class="code-line"><span class="line-num">${i+1}</span><span class="line-code">${l}</span></div>`
+).join('');
+
+// MRR data
+const mrrData = [
+  { month: '2026-09', mrr: 312400, customers: 2840, mom: 18200 },
+  { month: '2026-08', mrr: 294200, customers: 2710, mom: 15800 },
+  { month: '2026-07', mrr: 278400, customers: 2560, mom: 12100 },
+  { month: '2026-06', mrr: 266300, customers: 2440, mom: 9800 },
+  { month: '2026-05', mrr: 256500, customers: 2320, mom: 11200 },
+  { month: '2026-04', mrr: 245300, customers: 2180, mom: 14000 },
+  { month: '2026-03', mrr: 231300, customers: 2010, mom: 8900 },
+  { month: '2026-02', mrr: 222400, customers: 1890, mom: 10100 },
+  { month: '2026-01', mrr: 212300, customers: 1770, mom: 9200 },
+  { month: '2025-12', mrr: 203100, customers: 1650, mom: 12400 },
+  { month: '2025-11', mrr: 190700, customers: 1520, mom: 7800 },
+  { month: '2025-10', mrr: 182900, customers: 1420, mom: 6200 },
+];
+
+function fmt(n) { return n >= 1000000 ? '$' + (n/1000000).toFixed(2) + 'M' : '$' + (n/1000).toFixed(0) + 'K'; }
+
+// Revenue report
+function renderRevReport() {
+  const current = mrrData[0];
+  const prev = mrrData[1];
+  const momPct = ((current.mrr - prev.mrr) / prev.mrr * 100).toFixed(1);
+  const arr = current.mrr * 12;
+  const arrPct = '53.1';
+
+  // canvas chart
+  const chartId = 'mrrChart';
+  const barId = 'planChart';
+
+  document.getElementById('reportPreview').innerHTML = `
+    <div class="report-title">Revenue Dashboard</div>
+    <div class="report-meta">
+      <span>Updated 2 min ago</span>
+      <span>postgres (prod)</span>
+      <span style="color:var(--green)">● Live</span>
+    </div>
+
+    <div class="bignums">
+      <div class="bignum-card">
+        <div class="bignum-label">MRR</div>
+        <div class="bignum-val">$312.4K</div>
+        <div class="bignum-trend trend-up">▲ ${momPct}% MoM</div>
+      </div>
+      <div class="bignum-card">
+        <div class="bignum-label">ARR</div>
+        <div class="bignum-val">$3.75M</div>
+        <div class="bignum-trend trend-up">▲ ${arrPct}% YoY</div>
+      </div>
+      <div class="bignum-card">
+        <div class="bignum-label">Customers</div>
+        <div class="bignum-val">2,840</div>
+        <div class="bignum-trend trend-up">▲ 4.8% MoM</div>
+      </div>
+      <div class="bignum-card">
+        <div class="bignum-label">Avg ARR</div>
+        <div class="bignum-val">$1,321</div>
+        <div class="bignum-trend trend-up">▲ $84 MoM</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-title">MRR Trend — 12 months</div>
+        <canvas id="${chartId}" style="width:100%;height:140px"></canvas>
+        <div class="chart-sub">Consistent month-over-month growth averaging 6.2%</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Revenue by Plan</div>
+        <canvas id="${barId}" style="width:100%;height:140px"></canvas>
+        <div class="chart-sub">Enterprise up 28% QoQ — largest growth segment</div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title">MRR Data Table</div>
+      <table class="data-table">
+        <thead><tr><th>Month</th><th>MRR</th><th>Customers</th><th>MoM Change</th><th>Growth</th></tr></thead>
+        <tbody>${mrrData.slice(0,8).map((r,i) => {
+          const pct = i===mrrData.length-1 ? '—' : ((r.mrr - (mrrData[i+1]?.mrr||r.mrr))/((mrrData[i+1]?.mrr||r.mrr))*100).toFixed(1);
+          const cls = i===0 ? 'chip-green' : 'chip-blue';
+          return `<tr>
+            <td>${r.month}</td>
+            <td style="font-variant-numeric:tabular-nums;font-weight:600">${fmt(r.mrr)}</td>
+            <td style="font-variant-numeric:tabular-nums">${r.customers.toLocaleString()}</td>
+            <td style="color:var(--green);font-weight:600">+${fmt(r.mom)}</td>
+            <td><span class="chip ${cls}">${pct}%</span></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>
+  `;
+
+  // MRR line chart
+  drawLineChart(chartId, mrrData.map(d=>d.mrr).reverse(), mrrData.map(d=>d.month.slice(5)).reverse());
+  // Plan bar chart
+  drawBarChart(barId,
+    ['Starter','Team','Pro','Enterprise'],
+    [48200, 87400, 96800, 80000],
+    ['#60a5fa','#34d399','#f59e0b','#a78bfa']
+  );
+}
+
+function drawLineChart(id, vals, labels) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth || 400;
+  const H = 140;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const pad = {t:8,r:8,b:22,l:48};
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+  const min = Math.min(...vals)*0.96, max = Math.max(...vals)*1.02;
+  const x = i => pad.l + (i/(vals.length-1))*cw;
+  const y = v => pad.t + ch - ((v-min)/(max-min))*ch;
+
+  // Grid
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+    (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const labelColor = isDark ? '#6e7681' : '#8c959f';
+
+  [0,1,2].forEach(i => {
+    const v = min + (max-min)*(i/2);
+    ctx.strokeStyle = gridColor; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y(v)); ctx.lineTo(pad.l+cw,y(v)); ctx.stroke();
+    ctx.fillStyle = labelColor; ctx.font = '10px Inter'; ctx.textAlign = 'right';
+    ctx.fillText(fmt(v), pad.l-4, y(v)+3);
+  });
+
+  // Fill
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0,'rgba(37,99,235,0.2)'); grad.addColorStop(1,'rgba(37,99,235,0)');
+  ctx.beginPath(); ctx.moveTo(x(0),y(vals[0]));
+  vals.forEach((v,i)=>ctx.lineTo(x(i),y(v)));
+  ctx.lineTo(x(vals.length-1),y(min)); ctx.lineTo(x(0),y(min));
+  ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
+
+  // Line
+  ctx.beginPath(); ctx.moveTo(x(0),y(vals[0]));
+  vals.forEach((v,i)=>ctx.lineTo(x(i),y(v)));
+  ctx.strokeStyle='#2563eb'; ctx.lineWidth=2.5; ctx.stroke();
+
+  // Dots
+  ctx.fillStyle='#2563eb';
+  vals.forEach((v,i)=>{ctx.beginPath();ctx.arc(x(i),y(v),3,0,Math.PI*2);ctx.fill();});
+
+  // Labels
+  ctx.fillStyle=labelColor; ctx.font='9px Inter'; ctx.textAlign='center';
+  [0,3,6,9,11].forEach(i=>{ if(labels[i]) ctx.fillText(labels[i],x(i),H-5); });
+}
+
+function drawBarChart(id, labels, vals, colors) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth || 300;
+  const H = 140;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const pad = {t:8,r:8,b:22,l:52};
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+  const max = Math.max(...vals)*1.1;
+  const barW = cw/vals.length*0.6;
+  const gap = cw/vals.length;
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark' ||
+    (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme:dark)').matches);
+  const labelColor = isDark ? '#6e7681' : '#8c959f';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+  [0,0.5,1].forEach(t => {
+    const v = max*t;
+    const yv = pad.t+ch-t*ch;
+    ctx.strokeStyle=gridColor; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,yv); ctx.lineTo(pad.l+cw,yv); ctx.stroke();
+    ctx.fillStyle=labelColor; ctx.font='10px Inter'; ctx.textAlign='right';
+    ctx.fillText(fmt(v),pad.l-4,yv+3);
+  });
+
+  vals.forEach((v,i) => {
+    const bx = pad.l + i*gap + gap/2 - barW/2;
+    const bh = (v/max)*ch;
+    const by = pad.t+ch-bh;
+    ctx.fillStyle = colors[i]+'cc';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(bx,by,barW,bh,3) : ctx.rect(bx,by,barW,bh);
+    ctx.fill();
+    ctx.fillStyle=labelColor; ctx.font='10px Inter'; ctx.textAlign='center';
+    ctx.fillText(labels[i],bx+barW/2,H-5);
+  });
+}
+
+renderRevReport();
+
+// Customers preview
+function renderCustPreview() {
+  const customers = [
+    {name:'Acme Corp',plan:'Enterprise',arr:'$48,000',seats:240,status:'Active',since:'2024-01'},
+    {name:'Stripe',plan:'Enterprise',arr:'$36,000',seats:180,status:'Active',since:'2024-03'},
+    {name:'Shopify',plan:'Pro',arr:'$14,400',seats:72,status:'Active',since:'2024-06'},
+    {name:'Notion',plan:'Team',arr:'$9,600',seats:48,status:'Active',since:'2024-08'},
+    {name:'Linear',plan:'Team',arr:'$7,200',seats:36,status:'Active',since:'2025-01'},
+    {name:'Figma',plan:'Pro',arr:'$12,000',seats:60,status:'Active',since:'2025-02'},
+    {name:'Vercel',plan:'Pro',arr:'$9,600',seats:48,status:'Active',since:'2025-03'},
+    {name:'Retool',plan:'Team',arr:'$6,000',seats:30,status:'At Risk',since:'2025-05'},
+    {name:'Supabase',plan:'Starter',arr:'$2,400',seats:12,status:'Active',since:'2025-06'},
+    {name:'Planetscale',plan:'Starter',arr:'$1,200',seats:6,status:'Churned',since:'2024-11'},
+  ];
+  document.getElementById('custPreview').innerHTML = `
+    <div class="report-title">Customer Analytics</div>
+    <div class="report-meta"><span>Updated just now</span><span>postgres (prod)</span></div>
+    <div class="bignums" style="grid-template-columns:repeat(3,1fr)">
+      <div class="bignum-card"><div class="bignum-label">Total Customers</div><div class="bignum-val">2,840</div><div class="bignum-trend trend-up">▲ 130 MoM</div></div>
+      <div class="bignum-card"><div class="bignum-label">Avg ARR</div><div class="bignum-val">$1,321</div><div class="bignum-trend trend-up">▲ 6.8%</div></div>
+      <div class="bignum-card"><div class="bignum-label">Churn Rate</div><div class="bignum-val">1.8%</div><div class="bignum-trend trend-dn">▲ 0.2pp MoM</div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Top Customers by ARR</div>
+      <table class="data-table">
+        <thead><tr><th>Company</th><th>Plan</th><th>ARR</th><th>Seats</th><th>Status</th><th>Since</th></tr></thead>
+        <tbody>${customers.map(c=>`<tr>
+          <td>${c.name}</td>
+          <td>${c.plan}</td>
+          <td style="font-variant-numeric:tabular-nums;font-weight:600">${c.arr}</td>
+          <td style="font-variant-numeric:tabular-nums">${c.seats}</td>
+          <td><span class="chip ${c.status==='Active'?'chip-green':c.status==='At Risk'?'chip-amber':'chip-red'}">${c.status}</span></td>
+          <td style="color:var(--text3)">${c.since}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+renderCustPreview();
+
+// SQL run
+function runQuery() {
+  const results = document.getElementById('queryResults');
+  results.style.display = 'block';
+  const start = Date.now();
+  setTimeout(() => {
+    document.getElementById('rowCount').textContent = '12 rows';
+    document.getElementById('queryTime').textContent = `${Date.now()-start+340}ms`;
+    document.getElementById('resultsTable').innerHTML = `
+      <thead><tr><th>month</th><th>mrr</th><th>customers</th><th>mom_change</th></tr></thead>
+      <tbody>${mrrData.map(r=>`<tr>
+        <td>${r.month}-01</td>
+        <td style="font-variant-numeric:tabular-nums">$${(r.mrr/1000).toFixed(1)}K</td>
+        <td style="font-variant-numeric:tabular-nums">${r.customers.toLocaleString()}</td>
+        <td style="color:var(--green);font-variant-numeric:tabular-nums">+$${(r.mom/1000).toFixed(1)}K</td>
+      </tr>`).join('')}</tbody>`;
+  }, 420);
+}
+
+// AI generation
+const aiOutputs = {
+  'mrr by plan': `\`\`\`sql\nSELECT plan_name, SUM(mrr_cents)/100.0 AS mrr\nFROM subscriptions\nWHERE status = 'active'\nGROUP BY plan_name\nORDER BY mrr DESC;\n\`\`\`\n\n\`\`\`svelte\n<BarChart data={plan_mrr} x="plan_name" y="mrr"\n  title="MRR by Plan" />\n\`\`\``,
+  default: `\`\`\`sql\nSELECT DATE_TRUNC('month', created_at) AS month,\n  SUM(mrr_cents)/100.0 AS mrr,\n  COUNT(DISTINCT customer_id) AS customers\nFROM subscriptions\nWHERE status = 'active'\nGROUP BY 1 ORDER BY 1 DESC;\n\`\`\`\n\n\`\`\`svelte\n<LineChart data={mrr_trend} x="month" y="mrr"\n  title="MRR Trend" />\n\`\`\``
+};
+
+let aiPanel = null;
+function runAIQuery() {
+  const val = document.getElementById('aiQueryInput').value.trim();
+  if (!val) return;
+  if (aiPanel) aiPanel.remove();
+  const preview = document.getElementById('reportPreview');
+  aiPanel = document.createElement('div');
+  aiPanel.className = 'ai-suggestion';
+  aiPanel.innerHTML = `<div class="ai-suggestion-header">✦ AI Generated — based on your query</div><div class="ai-suggestion-body">Generated SQL and component code for: <strong>"${val}"</strong></div><div class="ai-gen-code">SELECT plan_name, SUM(mrr_cents)/100.0 AS mrr\nFROM subscriptions WHERE status = 'active'\nGROUP BY plan_name ORDER BY mrr DESC;</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-primary btn-sm" onclick="this.closest('.ai-suggestion').remove()">Insert into page</button><button class="btn btn-ghost btn-sm" onclick="this.closest('.ai-suggestion').remove()">Dismiss</button></div>`;
+  preview.insertBefore(aiPanel, preview.firstChild);
+  document.getElementById('aiQueryInput').value = '';
+}
+document.getElementById('aiQueryInput').addEventListener('keydown', e => { if(e.key==='Enter') runAIQuery(); });
+
+// Redraw charts on theme change
+document.getElementById('themeToggle').addEventListener('click', () => {
+  setTimeout(() => {
+    renderRevReport();
+    renderCustPreview();
+  }, 50);
+});
+</script>
